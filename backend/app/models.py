@@ -42,7 +42,7 @@ class MonitoredSystem(Base):
     # com_ia | sem_ia | hibrido
     ai_details: Mapped[str] = mapped_column(Text, nullable=False, default="")
     citizen_area: Mapped[str] = mapped_column(String(120), nullable=False, default="Serviços Públicos Digitais")
-    target_audience: Mapped[str] = mapped_column(String(250), nullable=False, default="Cidadãos em geral")
+    target_audience: Mapped[str] = mapped_column(Text, nullable=False, default="Cidadãos em geral")
     organization_type: Mapped[str] = mapped_column(String(100), nullable=False, default="Governo Municipal")
     country: Mapped[str] = mapped_column(String(100), nullable=False, default="Brasil")
     state_uf: Mapped[str] = mapped_column(String(60), nullable=False, default="")
@@ -82,12 +82,12 @@ class Mention(Base):
     # web | news | reddit | youtube | x | instagram | facebook | linkedin | reclame_aqui | forum
     content_type: Mapped[str] = mapped_column(String(30), nullable=False, default="mention")
     # mention | post | comment
-    parent_post_url: Mapped[str] = mapped_column(String(1000), nullable=False, default="")
-    title: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    parent_post_url: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    title: Mapped[str] = mapped_column(Text, nullable=False, default="")
     content: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    url: Mapped[str] = mapped_column(String(1000), nullable=False, default="")
-    author: Mapped[str] = mapped_column(String(200), nullable=False, default="")
-    matched_keyword: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    url: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    author: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    matched_keyword: Mapped[str] = mapped_column(Text, nullable=False, default="")
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Análise de Sentimento
@@ -119,10 +119,10 @@ class AwardOpportunity(Base):
     system_id: Mapped[int] = mapped_column(Integer, ForeignKey("monitored_systems.id", ondelete="CASCADE"), index=True)
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
 
-    title: Mapped[str] = mapped_column(String(300), nullable=False)
-    organizer: Mapped[str] = mapped_column(String(250), nullable=False, default="")
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    organizer: Mapped[str] = mapped_column(Text, nullable=False, default="")
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    official_url: Mapped[str] = mapped_column(String(1000), nullable=False, default="")
+    official_url: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
     scope: Mapped[str] = mapped_column(String(40), nullable=False, default="internacional")
     # nacional | regional | internacional
@@ -136,7 +136,7 @@ class AwardOpportunity(Base):
     stage_eligibility: Mapped[str] = mapped_column(String(30), nullable=False, default="ambos")
     # iniciativa | producao | ambos
 
-    deadline: Mapped[str] = mapped_column(String(120), nullable=False, default="Verificar edital")
+    deadline: Mapped[str] = mapped_column(Text, nullable=False, default="Verificar edital")
     deadline_date: Mapped[str] = mapped_column(String(20), nullable=False, default="")
     # ISO YYYY-MM-DD when known; empty for rolling/continuous calls
     award_status: Mapped[str] = mapped_column(String(30), nullable=False, default="previsto")
