@@ -12,11 +12,7 @@ services:
         value: 427902433680-l1tjjg8afmdt6j7s3v485cj523piujho.apps.googleusercontent.com
       - key: ADMIN_GOOGLE_EMAILS
         value: saulomartins.costa@gmail.com
-      - key: GEMINI_API_KEY
-        sync: false
       - key: GEMINI_MODEL
         value: gemini-3.5-flash-lite
-      - key: APIFY_TOKEN
-        sync: false
       - key: SCHEDULER_ENABLED
         value: "true"
