@@ -314,7 +314,7 @@ export function AccessTokensCard() {
               minLength={4}
               value={customToken}
               onChange={(e) => setCustomToken(e.target.value.replace(/\s+/g, ""))}
-              placeholder="Ex.: PULSE2026"
+              placeholder=""
               className="w-full rounded-lg border border-indigo-300 bg-white px-3 py-2 font-mono text-xs font-semibold text-slate-900 focus:border-indigo-500 focus:outline-none"
             />
           </div>

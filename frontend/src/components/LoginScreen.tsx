@@ -158,7 +158,7 @@ export function LoginScreen({
                 autoFocus
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ex.: PULSE2026"
+                placeholder=""
                 className="w-full rounded-xl border border-slate-300 py-2.5 pl-9 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               />
               <button
@@ -171,7 +171,7 @@ export function LoginScreen({
               </button>
             </div>
             <p className="mt-1.5 text-[11px] text-slate-500">
-              Digite a palavra/token de acesso fornecida pelo administrador (ex.: <code>PULSE2026</code>).
+              Digite o token de acesso fornecido pelo administrador.
             </p>
           </div>
 
