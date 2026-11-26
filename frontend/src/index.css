@@ -1,0 +1,26 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+}
+
+.award-map-pin-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+.award-map-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.award-map-card:hover {
+  transform: translateY(-2px) scale(1.03);
+  z-index: 9999 !important;
+}
+
