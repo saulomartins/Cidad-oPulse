@@ -8,6 +8,7 @@ import type {
   NotificationLog,
   PipelineStatus,
   ProblemDiagnostics,
+  ProjectStarRating,
   SentimentOverview,
   SystemPayload,
   TemporalAnalysis,
@@ -219,6 +220,20 @@ export const api = {
     if (params.channelGroup) qs.set("channel_group", params.channelGroup);
     if (params.useAi !== undefined) qs.set("use_ai", String(params.useAi));
     return request<ProblemDiagnostics>(`/sentiment/problems?${qs.toString()}`);
+  },
+  getStarRatings: (params?: {
+    systemId?: number | null;
+    days?: number | null;
+    useAi?: boolean;
+    refresh?: boolean;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params?.systemId) qs.set("system_id", String(params.systemId));
+    if (params?.days) qs.set("days", String(params.days));
+    if (params?.useAi !== undefined) qs.set("use_ai", String(params.useAi));
+    if (params?.refresh) qs.set("refresh", "true");
+    const q = qs.toString();
+    return request<ProjectStarRating[]>(`/sentiment/star-ratings${q ? `?${q}` : ""}`);
   },
   importComments: (payload: {
     system_id: number;

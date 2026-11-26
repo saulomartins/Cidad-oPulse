@@ -18,6 +18,7 @@ import type {
   MonitoredSystem,
   NotificationLog,
   PipelineStatus,
+  ProjectStarRating,
   SentimentOverview,
   SystemPayload,
 } from "./types";
@@ -36,6 +37,8 @@ export default function App() {
   const [overview, setOverview] = useState<SentimentOverview | null>(null);
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [awards, setAwards] = useState<AwardOpportunity[]>([]);
+  const [starRatings, setStarRatings] = useState<ProjectStarRating[]>([]);
+  const [refreshingStarSystemId, setRefreshingStarSystemId] = useState<number | null>(null);
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [connectors, setConnectors] = useState<ConnectorStatus[]>([]);
   const [jobs, setJobs] = useState<JobRun[]>([]);
@@ -66,12 +69,13 @@ export default function App() {
       setError(null);
       const sysFilter = focusedSystemId ?? undefined;
       const isAdmin = authRole === "admin";
-      const [sys, ov, men, aw, jobList, adminData] = await Promise.all([
+      const [sys, ov, men, aw, jobList, ratingsList, adminData] = await Promise.all([
         api.listSystems(),
         api.getSentimentOverview(sysFilter),
         api.listMentions({ system_id: sysFilter, limit: 200 }),
         api.listAwards({ system_id: sysFilter }),
         api.listJobs(),
+        api.getStarRatings({ systemId: sysFilter, useAi: true }).catch(() => [] as ProjectStarRating[]),
         isAdmin
           ? Promise.all([api.getSettings(), api.listConnectors(), api.listNotificationLogs()])
           : Promise.resolve([null, [], []] as [AppSettings | null, ConnectorStatus[], NotificationLog[]]),
@@ -81,6 +85,7 @@ export default function App() {
       setOverview(ov);
       setMentions(men);
       setAwards(aw);
+      setStarRatings(ratingsList);
       setSettings(setCfg);
       setConnectors(conn);
       setJobs(jobList);
@@ -290,6 +295,26 @@ export default function App() {
     setActiveTab(tab);
   };
 
+  const handleRefreshStarRating = async (systemId: number) => {
+    setRefreshingStarSystemId(systemId);
+    try {
+      const updated = await api.getStarRatings({ systemId, useAi: true, refresh: true });
+      if (updated.length > 0) {
+        const fresh = updated[0];
+        setStarRatings((prev) =>
+          prev.some((r) => r.system_id === systemId)
+            ? prev.map((r) => (r.system_id === systemId ? fresh : r))
+            : [...prev, fresh]
+        );
+        showToast(
+          `Nota por estrelas de ${fresh.system_name} atualizada pela IA: ${fresh.stars.toFixed(1).replace(".", ",")}★ (${fresh.rating_label}).`
+        );
+      }
+    } finally {
+      setRefreshingStarSystemId(null);
+    }
+  };
+
   const activeProject = systems.find((s) => s.id === focusedSystemId) || null;
 
   if (!authChecked) {
@@ -354,6 +379,10 @@ export default function App() {
           overview={overview}
           mentions={mentions}
           awards={awards}
+          starRatings={starRatings}
+          refreshingStarSystemId={refreshingStarSystemId}
+          onRefreshStarRating={handleRefreshStarRating}
+          onSelectProject={(id) => setFocusedSystemId(id)}
           onRunSentimentAll={() => handleRunSentiment(focusedSystemId ?? undefined)}
           onRunAwardsAll={() =>
             handleRunAwards({
@@ -369,6 +398,7 @@ export default function App() {
       {activeTab === "systems" && (
         <SystemsPage
           systems={systems}
+          starRatings={starRatings}
           onCreate={handleCreateSystem}
           onUpdate={handleUpdateSystem}
           onDelete={handleDeleteSystem}

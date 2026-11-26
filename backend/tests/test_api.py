@@ -654,6 +654,32 @@ def test_database_url_normalization_and_optional_password_auth(client: TestClien
     assert client.get("/api/auth/status").json()["auth_required"] is True
     assert client.get("/api/systems").status_code == 401
 
+    # Re-authenticate via Google (now signed without APP_PASSWORD) and clean up auth settings
+    g_admin2 = client.post("/api/auth/google", json={"credential": "admin@gmail.com"})
+    assert g_admin2.status_code == 200
+    assert (
+        client.put(
+            "/api/auth/access-config",
+            json={"clear_app_password": True, "google_client_id": "", "admin_google_emails": "", "allowed_google_emails": ""},
+            headers={"Authorization": f"Bearer {g_admin2.json()['token']}"},
+        ).status_code
+        == 200
+    )
+
+
+def test_project_star_ratings_endpoint(client: TestClient):
+    resp = client.get("/api/sentiment/star-ratings?use_ai=false")
+    assert resp.status_code == 200
+    ratings = resp.json()
+    assert len(ratings) >= 1
+    first = ratings[0]
+    assert 0.0 <= first["stars"] <= 5.0
+    assert first["rating_label"]
+    assert first["rating_reason"]
+    assert [b["stars"] for b in first["star_distribution"]] == [5, 4, 3, 2, 1]
+    assert sum(b["count"] for b in first["star_distribution"]) == first["total_mentions"]
+
+
 
 
 

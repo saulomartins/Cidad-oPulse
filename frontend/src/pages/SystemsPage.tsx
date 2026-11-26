@@ -11,11 +11,13 @@ import {
   Tag,
   Trash2,
 } from "lucide-react";
-import type { MonitoredSystem, SystemPayload } from "../types";
+import type { MonitoredSystem, ProjectStarRating, SystemPayload } from "../types";
 import { SystemFormModal } from "../components/SystemFormModal";
+import { StarRow } from "../components/StarRatingCard";
 
 interface Props {
   systems: MonitoredSystem[];
+  starRatings?: ProjectStarRating[];
   onCreate: (payload: SystemPayload) => Promise<void>;
   onUpdate: (id: number, payload: SystemPayload) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
@@ -29,6 +31,7 @@ interface Props {
 
 export function SystemsPage({
   systems,
+  starRatings = [],
   onCreate,
   onUpdate,
   onDelete,
@@ -87,6 +90,7 @@ export function SystemsPage({
         {systems.map((sys) => {
           const sentBusy = busyKey === `sent-${sys.id}`;
           const awardBusy = busyKey === `award-${sys.id}`;
+          const sysRating = starRatings.find((r) => r.system_id === sys.id);
           return (
             <div
               key={sys.id}
@@ -159,6 +163,28 @@ export function SystemsPage({
                 </div>
 
                 <p className="text-sm leading-relaxed text-slate-700">{sys.description}</p>
+
+                {sysRating && (
+                  <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 p-3 text-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-extrabold text-slate-900">
+                          {sysRating.total_mentions > 0
+                            ? sysRating.stars.toFixed(1).replace(".", ",")
+                            : "—"}
+                        </span>
+                        <StarRow stars={sysRating.stars} size="sm" />
+                        <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-amber-900 shadow-sm">
+                          {sysRating.rating_label}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-500">
+                        {sysRating.total_mentions} avaliações
+                      </span>
+                    </div>
+                    <p className="mt-1.5 leading-relaxed text-slate-700">{sysRating.rating_reason}</p>
+                  </div>
+                )}
 
                 {sys.ai_details && (
                   <p className="rounded-lg bg-indigo-50/60 px-3 py-2 text-xs text-indigo-900">

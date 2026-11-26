@@ -373,3 +373,31 @@ class NotificationLogOut(BaseModel):
     status: str
     details: str
     created_at: datetime
+
+
+class StarBucketOut(BaseModel):
+    stars: int
+    count: int
+    pct: float
+
+
+class ProjectStarRatingOut(BaseModel):
+    system_id: int
+    system_name: str
+    citizen_area: str
+    stars: float
+    rating_label: str
+    total_mentions: int
+    positive_count: int
+    neutral_count: int
+    negative_count: int
+    news_stars: float | None = None
+    news_count: int = 0
+    social_stars: float | None = None
+    social_count: int = 0
+    star_distribution: list[StarBucketOut]
+    rating_reason: str
+    positive_drivers: list[str]
+    negative_drivers: list[str]
+    analyzed_by: str
+    updated_at: str

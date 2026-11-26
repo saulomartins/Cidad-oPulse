@@ -22,11 +22,18 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { AwardOpportunity, Mention, MonitoredSystem, SentimentOverview } from "../types";
+import type {
+  AwardOpportunity,
+  Mention,
+  MonitoredSystem,
+  ProjectStarRating,
+  SentimentOverview,
+} from "../types";
 import { SentimentBadge } from "../components/SentimentBadge";
 import { MatchScoreBadge } from "../components/MatchScoreBadge";
 import { AwardsWorldMap } from "../components/AwardsWorldMap";
 import { MentionDetailModal } from "../components/MentionDetailModal";
+import { StarRatingCard } from "../components/StarRatingCard";
 import type { NavTab } from "../components/Layout";
 import { buildFallbackSearchUrl, getDisplayHost, normalizeExternalUrl } from "../utils/links";
 
@@ -36,6 +43,10 @@ interface Props {
   overview: SentimentOverview | null;
   mentions: Mention[];
   awards: AwardOpportunity[];
+  starRatings: ProjectStarRating[];
+  refreshingStarSystemId: number | null;
+  onRefreshStarRating: (systemId: number) => Promise<void>;
+  onSelectProject: (systemId: number) => void;
   onRunSentimentAll: () => Promise<void>;
   onRunAwardsAll: () => Promise<void>;
   onNavigate: (tab: NavTab) => void;
@@ -47,6 +58,10 @@ export function DashboardPage({
   overview,
   mentions,
   awards,
+  starRatings,
+  refreshingStarSystemId,
+  onRefreshStarRating,
+  onSelectProject,
   onRunSentimentAll,
   onRunAwardsAll,
   onNavigate,
@@ -190,6 +205,36 @@ export function DashboardPage({
           </p>
         </div>
       </div>
+
+      {/* App-Store / Google Play Style 5-Star Reputation Ratings per Project */}
+      {starRatings.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                {selectedProject
+                  ? `Avaliação por Estrelas — ${selectedProject.name}`
+                  : "Avaliação por Estrelas dos Projetos (Notícias & Comentários)"}
+              </h3>
+              <p className="text-xs text-slate-500">
+                Nota de 1 a 5 estrelas calculada pela IA a partir da leitura das notícias e comentários reais, com justificativa detalhada.
+              </p>
+            </div>
+          </div>
+
+          <div className={starRatings.length === 1 ? "grid gap-4" : "grid gap-5 lg:grid-cols-2"}>
+            {starRatings.map((rating) => (
+              <StarRatingCard
+                key={rating.system_id}
+                rating={rating}
+                refreshing={refreshingStarSystemId === rating.system_id}
+                onRefresh={onRefreshStarRating}
+                onSelectProject={!selectedProject ? onSelectProject : undefined}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-3">

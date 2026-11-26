@@ -297,3 +297,31 @@ export interface NotificationLog {
   details: string;
   created_at: string;
 }
+
+export interface StarBucket {
+  stars: number;
+  count: number;
+  pct: number;
+}
+
+export interface ProjectStarRating {
+  system_id: number;
+  system_name: string;
+  citizen_area: string;
+  stars: number;
+  rating_label: string;
+  total_mentions: number;
+  positive_count: number;
+  neutral_count: number;
+  negative_count: number;
+  news_stars: number | null;
+  news_count: number;
+  social_stars: number | null;
+  social_count: number;
+  star_distribution: StarBucket[];
+  rating_reason: string;
+  positive_drivers: string[];
+  negative_drivers: string[];
+  analyzed_by: string;
+  updated_at: string;
+}

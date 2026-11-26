@@ -20,6 +20,7 @@ from app.schemas import (
     JobRunOut,
     MentionOut,
     ProblemDiagnosticsOut,
+    ProjectStarRatingOut,
     ScanRequest,
     SentimentOverview,
     SentimentTrendPoint,
@@ -28,6 +29,7 @@ from app.schemas import (
 from app.services.monitor_runner import ingest_collected_mentions, run_sentiment_scan
 from app.services.problem_analytics import build_problem_diagnostics
 from app.services.relevance import evaluate_mention_quality, evaluate_mention_relevance, strip_html
+from app.services.star_rating import build_project_star_ratings
 from app.services.temporal import build_temporal_analysis, mention_timestamp
 
 router = APIRouter(prefix="/api/sentiment", tags=["sentiment"])
@@ -266,6 +268,19 @@ async def get_problem_diagnostics(
 ):
     return await build_problem_diagnostics(
         db, system_id=system_id, days=days, channel_group=channel_group, use_ai=use_ai
+    )
+
+
+@router.get("/star-ratings", response_model=list[ProjectStarRatingOut])
+async def get_project_star_ratings(
+    system_id: int | None = Query(default=None),
+    days: int | None = Query(default=None, ge=1, le=730),
+    use_ai: bool = Query(default=True),
+    refresh: bool = Query(default=False),
+    db: Session = Depends(get_db),
+):
+    return await build_project_star_ratings(
+        db, system_id=system_id, days=days, use_ai=use_ai, refresh=refresh
     )
 
 
