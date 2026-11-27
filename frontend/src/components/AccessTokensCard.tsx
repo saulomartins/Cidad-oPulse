@@ -42,7 +42,6 @@ export function AccessTokensCard() {
   const [tokens, setTokens] = useState<TokenRow[]>([]);
   const [label, setLabel] = useState("");
   const [customToken, setCustomToken] = useState("");
-  const [role, setRole] = useState<"viewer" | "editor">("viewer");
   const [expiresDays, setExpiresDays] = useState<string>("30");
   const [creating, setCreating] = useState(false);
   const [newlyCreated, setNewlyCreated] = useState<{ label: string; role: string; token: string } | null>(null);
@@ -115,7 +114,7 @@ export function AccessTokensCard() {
     try {
       const created = await api.createAccessToken({
         label: label.trim(),
-        role,
+        role: "viewer",
         expires_in_days: expiresDays ? Number(expiresDays) : null,
         custom_token: customToken.trim(),
       });
@@ -336,12 +335,11 @@ export function AccessTokensCard() {
           <div className="md:col-span-2">
             <label className="mb-1 block text-[11px] font-semibold text-slate-700">Permissão</label>
             <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as "viewer" | "editor")}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs"
+              value="viewer"
+              disabled
+              className="w-full rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-2 text-xs font-semibold text-slate-600"
             >
               <option value="viewer">Somente Leitura</option>
-              <option value="editor">Colaborador</option>
             </select>
           </div>
 

@@ -123,8 +123,8 @@ def _lookup_valid_guest_token(raw_token: str, record_use: bool = False) -> tuple
             row.last_used_at = now
             row.use_count = int(row.use_count or 0) + 1
             db.commit()
-        role = row.role if row.role in {"viewer", "editor"} else "viewer"
-        return role, row.label
+        # Guest access tokens are always strictly read-only (only Admin Gmail can mutate)
+        return "viewer", row.label
     finally:
         db.close()
 
@@ -232,11 +232,13 @@ async def auth_and_rbac_middleware(request: Request, call_next):
                 content={"detail": "Acesso restrito ao administrador."},
             )
 
-        # Viewer tokens are strictly read-only
-        if role == "viewer" and request.method not in {"GET", "HEAD", "OPTIONS"}:
+        # Strict rule: ONLY the admin (saulomartins.costa@gmail.com) may create, edit, delete, or trigger actions
+        if role != "admin" and request.method not in {"GET", "HEAD", "OPTIONS"}:
             return JSONResponse(
                 status_code=403,
-                content={"detail": "Seu acesso possui permissão apenas de leitura."},
+                content={
+                    "detail": "Somente o administrador autorizado pode incluir, editar, excluir ou executar varreduras."
+                },
             )
 
     return await call_next(request)
@@ -495,7 +497,7 @@ def create_access_token(payload: CreateAccessTokenRequest, db: Session = Depends
     )
     row = AccessToken(
         label=payload.label.strip(),
-        role=payload.role,
+        role="viewer",
         token_hash=tok_hash,
         token_prefix=prefix,
         is_active=True,

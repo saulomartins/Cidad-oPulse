@@ -381,6 +381,7 @@ export default function App() {
           awards={awards}
           starRatings={starRatings}
           refreshingStarSystemId={refreshingStarSystemId}
+          isAdmin={authRole === "admin"}
           onRefreshStarRating={handleRefreshStarRating}
           onSelectProject={(id) => setFocusedSystemId(id)}
           onRunSentimentAll={() => handleRunSentiment(focusedSystemId ?? undefined)}
@@ -399,6 +400,7 @@ export default function App() {
         <SystemsPage
           systems={systems}
           starRatings={starRatings}
+          isAdmin={authRole === "admin"}
           onCreate={handleCreateSystem}
           onUpdate={handleUpdateSystem}
           onDelete={handleDeleteSystem}
@@ -419,6 +421,7 @@ export default function App() {
           mentions={mentions}
           overview={overview}
           initialSystemId={focusedSystemId}
+          isAdmin={authRole === "admin"}
           onScan={(id) => handleRunSentiment(id)}
           onCleanupIrrelevant={(id) => handleCleanupIrrelevant(id)}
           onDeleteMention={handleDeleteMention}
@@ -430,6 +433,7 @@ export default function App() {
           systems={systems}
           allMentions={mentions}
           initialSystemId={focusedSystemId}
+          isAdmin={authRole === "admin"}
           onScanPeriod={(sysId, lookbackDays) => handleRunSentiment(sysId, lookbackDays)}
         />
       )}
@@ -440,6 +444,7 @@ export default function App() {
           mentions={mentions}
           settings={settings}
           initialSystemId={focusedSystemId}
+          isAdmin={authRole === "admin"}
           onRefreshAll={refreshAll}
           onToast={(msg) => showToast(msg)}
         />
@@ -450,6 +455,7 @@ export default function App() {
           systems={systems}
           awards={awards}
           initialSystemId={focusedSystemId}
+          isAdmin={authRole === "admin"}
           onRunAwardsScan={handleRunAwards}
           onVerifyDeadlines={handleVerifyAwardDeadlines}
           onMarkAwardClosed={handleMarkAwardClosed}

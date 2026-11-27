@@ -36,6 +36,7 @@ interface Props {
   systems: MonitoredSystem[];
   allMentions?: Mention[];
   initialSystemId?: number | null;
+  isAdmin?: boolean;
   onScanPeriod: (systemId: number | undefined, lookbackDays: number) => Promise<void>;
 }
 
@@ -47,7 +48,7 @@ const PERIOD_OPTIONS = [
   { days: 365, label: "1 ano" },
 ];
 
-export function TemporalAnalysisPage({ systems, allMentions = [], initialSystemId, onScanPeriod }: Props) {
+export function TemporalAnalysisPage({ systems, allMentions = [], initialSystemId, isAdmin = false, onScanPeriod }: Props) {
   const [selectedSystemId, setSelectedSystemId] = useState<string>(
     initialSystemId ? String(initialSystemId) : systems[0] ? String(systems[0].id) : ""
   );
@@ -146,14 +147,16 @@ export function TemporalAnalysisPage({ systems, allMentions = [], initialSystemI
             ))}
           </select>
 
-          <button
-            onClick={handleScanPeriod}
-            disabled={scanning}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Coletar período ({PERIOD_OPTIONS.find((p) => p.days === days)?.label})
-          </button>
+          {isAdmin && (
+            <button
+              onClick={handleScanPeriod}
+              disabled={scanning}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Coletar período ({PERIOD_OPTIONS.find((p) => p.days === days)?.label})
+            </button>
+          )}
         </div>
       </div>
 

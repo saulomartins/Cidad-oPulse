@@ -34,6 +34,7 @@ interface Props {
   mentions: Mention[];
   settings: AppSettings | null;
   initialSystemId?: number | null;
+  isAdmin?: boolean;
   onRefreshAll: () => Promise<void>;
   onToast: (msg: string) => void;
 }
@@ -57,6 +58,7 @@ export function ProblemDiagnosticsPage({
   mentions,
   settings,
   initialSystemId,
+  isAdmin = false,
   onRefreshAll,
   onToast,
 }: Props) {
@@ -143,13 +145,15 @@ export function ProblemDiagnosticsPage({
           </p>
         </div>
 
-        <button
-          onClick={() => setImportOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
-        >
-          <MessageSquarePlus className="h-4 w-4" />
-          Coletar / Importar Comentários (IG & FB)
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setImportOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+          >
+            <MessageSquarePlus className="h-4 w-4" />
+            Coletar / Importar Comentários (IG & FB)
+          </button>
+        )}
       </div>
 
       {/* Filters */}

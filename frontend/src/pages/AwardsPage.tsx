@@ -32,6 +32,7 @@ interface Props {
   systems: MonitoredSystem[];
   awards: AwardOpportunity[];
   initialSystemId?: number | null;
+  isAdmin?: boolean;
   onRunAwardsScan: (payload: {
     system_id?: number | null;
     focus_scope: "todos" | "internacional" | "nacional";
@@ -62,6 +63,7 @@ export function AwardsPage({
   systems,
   awards,
   initialSystemId,
+  isAdmin = false,
   onRunAwardsScan,
   onVerifyDeadlines,
   onMarkAwardClosed,
@@ -242,17 +244,23 @@ export function AwardsPage({
 
           <div className="flex items-center gap-2.5">
             <MatchScoreBadge score={a.match_score} />
-            <select
-              value={a.pipeline_status}
-              onChange={(e) => onUpdatePipeline(a.id, e.target.value as PipelineStatus)}
-              className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700"
-            >
-              {PIPELINE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            {isAdmin ? (
+              <select
+                value={a.pipeline_status}
+                onChange={(e) => onUpdatePipeline(a.id, e.target.value as PipelineStatus)}
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700"
+              >
+                {PIPELINE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-600">
+                {PIPELINE_OPTIONS.find((o) => o.value === a.pipeline_status)?.label || a.pipeline_status}
+              </span>
+            )}
           </div>
         </div>
 
@@ -315,7 +323,7 @@ export function AwardsPage({
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {!isClosed && (
+            {isAdmin && !isClosed && (
               <button
                 type="button"
                 onClick={async () => {
@@ -380,16 +388,18 @@ export function AwardsPage({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={handleVerify}
-            disabled={verifying}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"
-            title="Entra nas páginas oficiais e subpáginas de edital para confirmar quais inscrições estão abertas hoje"
-          >
-            {verifying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-            {verifying ? "Varrendo sites oficiais..." : "Verificar prazos ao vivo"}
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={handleVerify}
+              disabled={verifying}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"
+              title="Entra nas páginas oficiais e subpáginas de edital para confirmar quais inscrições estão abertas hoje"
+            >
+              {verifying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+              {verifying ? "Varrendo sites oficiais..." : "Verificar prazos ao vivo"}
+            </button>
+          )}
           <a
             href={api.exportAwardsUrl("markdown", scanSystemId ? Number(scanSystemId) : undefined)}
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
@@ -405,57 +415,59 @@ export function AwardsPage({
         </div>
       </div>
 
-      {/* Global Search Control Bar */}
-      <div className="rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-cyan-50 p-5 shadow-sm">
-        <div className="mb-3 flex items-center gap-2 text-sm font-bold text-indigo-900">
-          <Globe2 className="h-4 w-4 text-indigo-600" />
-          Disparar Pesquisa Mundial Personalizada pelo Perfil do Sistema
+      {/* Global Search Control Bar (Admin only) */}
+      {isAdmin && (
+        <div className="rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-cyan-50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-indigo-900">
+            <Globe2 className="h-4 w-4 text-indigo-600" />
+            Disparar Pesquisa Mundial Personalizada pelo Perfil do Sistema
+          </div>
+          <div className="grid gap-3 md:grid-cols-4">
+            <select
+              value={scanSystemId}
+              onChange={(e) => setScanSystemId(e.target.value)}
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
+              <option value="">Todos os sistemas ativos</option>
+              {systems.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.uses_ai === "sem_ia" ? "Sem IA" : "Com IA"} • {s.stage})
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={scanScope}
+              onChange={(e) => setScanScope(e.target.value as typeof scanScope)}
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
+              <option value="todos">Abrangência: Todo o Mundo + Nacional</option>
+              <option value="internacional">Somente Internacionais / Globais</option>
+              <option value="nacional">Somente Nacionais (Brasil)</option>
+            </select>
+
+            <select
+              value={scanAiMode}
+              onChange={(e) => setScanAiMode(e.target.value as typeof scanAiMode)}
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
+              <option value="auto">IA: Automático pelo perfil do sistema</option>
+              <option value="ambos">Incluir prêmios com IA e sem IA</option>
+              <option value="com_ia">Focar em prêmios de IA para o Cidadão</option>
+              <option value="sem_ia">Focar em prêmios que não exigem IA</option>
+            </select>
+
+            <button
+              onClick={handleScan}
+              disabled={scanning}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Radar className="h-4 w-4" />}
+              {scanning ? "Pesquisando & verificando..." : "Pesquisar Prêmios Agora"}
+            </button>
+          </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-4">
-          <select
-            value={scanSystemId}
-            onChange={(e) => setScanSystemId(e.target.value)}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-          >
-            <option value="">Todos os sistemas ativos</option>
-            {systems.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.uses_ai === "sem_ia" ? "Sem IA" : "Com IA"} • {s.stage})
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={scanScope}
-            onChange={(e) => setScanScope(e.target.value as typeof scanScope)}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-          >
-            <option value="todos">Abrangência: Todo o Mundo + Nacional</option>
-            <option value="internacional">Somente Internacionais / Globais</option>
-            <option value="nacional">Somente Nacionais (Brasil)</option>
-          </select>
-
-          <select
-            value={scanAiMode}
-            onChange={(e) => setScanAiMode(e.target.value as typeof scanAiMode)}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-          >
-            <option value="auto">IA: Automático pelo perfil do sistema</option>
-            <option value="ambos">Incluir prêmios com IA e sem IA</option>
-            <option value="com_ia">Focar em prêmios de IA para o Cidadão</option>
-            <option value="sem_ia">Focar em prêmios que não exigem IA</option>
-          </select>
-
-          <button
-            onClick={handleScan}
-            disabled={scanning}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Radar className="h-4 w-4" />}
-            {scanning ? "Pesquisando & verificando..." : "Pesquisar Prêmios Agora"}
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Filters + Status Tabs + View Switcher */}
       <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">

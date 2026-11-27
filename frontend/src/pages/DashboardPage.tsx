@@ -45,6 +45,7 @@ interface Props {
   awards: AwardOpportunity[];
   starRatings: ProjectStarRating[];
   refreshingStarSystemId: number | null;
+  isAdmin?: boolean;
   onRefreshStarRating: (systemId: number) => Promise<void>;
   onSelectProject: (systemId: number) => void;
   onRunSentimentAll: () => Promise<void>;
@@ -60,6 +61,7 @@ export function DashboardPage({
   awards,
   starRatings,
   refreshingStarSystemId,
+  isAdmin = false,
   onRefreshStarRating,
   onSelectProject,
   onRunSentimentAll,
@@ -114,33 +116,35 @@ export function DashboardPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2.5">
-          <button
-            onClick={handleSentiment}
-            disabled={runningSentiment}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
-          >
-            {runningSentiment ? (
-              <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
-            ) : (
-              <RefreshCw className="h-4 w-4 text-indigo-600" />
-            )}
-            {selectedProject ? "Varrer Sentimento do Projeto" : "Varrer Sentimento"}
-          </button>
+        {isAdmin && (
+          <div className="flex flex-wrap gap-2.5">
+            <button
+              onClick={handleSentiment}
+              disabled={runningSentiment}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+            >
+              {runningSentiment ? (
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+              ) : (
+                <RefreshCw className="h-4 w-4 text-indigo-600" />
+              )}
+              {selectedProject ? "Varrer Sentimento do Projeto" : "Varrer Sentimento"}
+            </button>
 
-          <button
-            onClick={handleAwards}
-            disabled={runningAwards}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {runningAwards ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Radar className="h-4 w-4" />
-            )}
-            {selectedProject ? "Buscar Prêmios do Projeto" : "Rodar Radar Mundial de Prêmios"}
-          </button>
-        </div>
+            <button
+              onClick={handleAwards}
+              disabled={runningAwards}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {runningAwards ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Radar className="h-4 w-4" />
+              )}
+              {selectedProject ? "Buscar Prêmios do Projeto" : "Rodar Radar Mundial de Prêmios"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* KPI Grid */}
@@ -228,7 +232,7 @@ export function DashboardPage({
                 key={rating.system_id}
                 rating={rating}
                 refreshing={refreshingStarSystemId === rating.system_id}
-                onRefresh={onRefreshStarRating}
+                onRefresh={isAdmin ? onRefreshStarRating : undefined}
                 onSelectProject={!selectedProject ? onSelectProject : undefined}
               />
             ))}

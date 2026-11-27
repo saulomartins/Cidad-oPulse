@@ -23,6 +23,7 @@ interface Props {
   mentions: Mention[];
   overview: SentimentOverview | null;
   initialSystemId?: number | null;
+  isAdmin?: boolean;
   onScan: (systemId?: number) => Promise<void>;
   onCleanupIrrelevant: (systemId?: number) => Promise<void>;
   onDeleteMention: (id: number) => Promise<void>;
@@ -33,6 +34,7 @@ export function SentimentPage({
   mentions,
   overview,
   initialSystemId,
+  isAdmin = false,
   onScan,
   onCleanupIrrelevant,
   onDeleteMention,
@@ -106,26 +108,28 @@ export function SentimentPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={handleCleanup}
-            disabled={cleaning}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
-            title="Reavalia menções salvas e remove falsos positivos fora do contexto do sistema"
-          >
-            {cleaning ? <Loader2 className="h-4 w-4 animate-spin text-indigo-600" /> : <Sparkles className="h-4 w-4 text-indigo-600" />}
-            Limpar irrelevantes
-          </button>
+        {isAdmin && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={handleCleanup}
+              disabled={cleaning}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+              title="Reavalia menções salvas e remove falsos positivos fora do contexto do sistema"
+            >
+              {cleaning ? <Loader2 className="h-4 w-4 animate-spin text-indigo-600" /> : <Sparkles className="h-4 w-4 text-indigo-600" />}
+              Limpar irrelevantes
+            </button>
 
-          <button
-            onClick={handleScan}
-            disabled={scanning}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            {selectedSystem ? "Varrer Sistema Selecionado" : "Varrer Todos os Sistemas"}
-          </button>
-        </div>
+            <button
+              onClick={handleScan}
+              disabled={scanning}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {selectedSystem ? "Varrer Sistema Selecionado" : "Varrer Todos os Sistemas"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Top Topics Strip */}
@@ -253,13 +257,15 @@ export function SentimentPage({
 
                 <div className="flex items-center gap-2">
                   <SentimentBadge sentiment={m.sentiment} score={m.sentiment_score} />
-                  <button
-                    onClick={() => onDeleteMention(m.id)}
-                    className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-rose-600"
-                    title="Remover menção"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => onDeleteMention(m.id)}
+                      className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-rose-600"
+                      title="Remover menção"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </div>
 

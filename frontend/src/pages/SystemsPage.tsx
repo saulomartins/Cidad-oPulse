@@ -18,6 +18,7 @@ import { StarRow } from "../components/StarRatingCard";
 interface Props {
   systems: MonitoredSystem[];
   starRatings?: ProjectStarRating[];
+  isAdmin?: boolean;
   onCreate: (payload: SystemPayload) => Promise<void>;
   onUpdate: (id: number, payload: SystemPayload) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
@@ -32,6 +33,7 @@ interface Props {
 export function SystemsPage({
   systems,
   starRatings = [],
+  isAdmin = false,
   onCreate,
   onUpdate,
   onDelete,
@@ -77,13 +79,15 @@ export function SystemsPage({
           </p>
         </div>
 
-        <button
-          onClick={handleOpenNew}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
-        >
-          <Plus className="h-4 w-4" />
-          Novo Sistema
-        </button>
+        {isAdmin && (
+          <button
+            onClick={handleOpenNew}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+          >
+            <Plus className="h-4 w-4" />
+            Novo Sistema
+          </button>
+        )}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -140,26 +144,28 @@ export function SystemsPage({
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleEdit(sys)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                      title="Editar sistema"
-                    >
-                      <Edit3 className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Remover "${sys.name}" e todos os dados coletados?`)) {
-                          onDelete(sys.id);
-                        }
-                      }}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                      title="Excluir sistema"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleEdit(sys)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                        title="Editar sistema"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Remover "${sys.name}" e todos os dados coletados?`)) {
+                            onDelete(sys.id);
+                          }
+                        }}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                        title="Excluir sistema"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <p className="text-sm leading-relaxed text-slate-700">{sys.description}</p>
@@ -268,33 +274,35 @@ export function SystemsPage({
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    onClick={() => handleAction(`sent-${sys.id}`, () => onScanSentiment(sys.id))}
-                    disabled={sentBusy}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                  >
-                    {sentBusy ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" />
-                    ) : (
-                      <Activity className="h-3.5 w-3.5 text-indigo-600" />
-                    )}
-                    Monitorar Sentimento
-                  </button>
+                {isAdmin && (
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      onClick={() => handleAction(`sent-${sys.id}`, () => onScanSentiment(sys.id))}
+                      disabled={sentBusy}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      {sentBusy ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" />
+                      ) : (
+                        <Activity className="h-3.5 w-3.5 text-indigo-600" />
+                      )}
+                      Monitorar Sentimento
+                    </button>
 
-                  <button
-                    onClick={() => handleAction(`award-${sys.id}`, () => onScanAwards(sys.id))}
-                    disabled={awardBusy}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    {awardBusy ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Award className="h-3.5 w-3.5" />
-                    )}
-                    Buscar Prêmios Mundiais
-                  </button>
-                </div>
+                    <button
+                      onClick={() => handleAction(`award-${sys.id}`, () => onScanAwards(sys.id))}
+                      disabled={awardBusy}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {awardBusy ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Award className="h-3.5 w-3.5" />
+                      )}
+                      Buscar Prêmios Mundiais
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           );
